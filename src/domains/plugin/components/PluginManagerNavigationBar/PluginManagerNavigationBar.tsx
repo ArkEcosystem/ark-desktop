@@ -60,7 +60,7 @@ export const PluginManagerNavigationBar = ({
 										}`}
 									>
 										<span>{menuItem.title}</span>
-										{menuItem.name !== "home" && (
+										{!["home", "all"].includes(menuItem.name) && (
 											<span className="ml-1 text-theme-secondary-500 dark:text-theme-secondary-700">
 												{countsByCategory[menuItem.name]}
 											</span>
@@ -127,6 +127,10 @@ PluginManagerNavigationBar.defaultProps = {
 		{
 			title: "Home",
 			name: "home",
+		},
+		{
+			title: "All",
+			name: "all",
 		},
 		{
 			title: "Gaming",

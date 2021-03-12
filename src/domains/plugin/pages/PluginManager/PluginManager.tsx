@@ -21,6 +21,8 @@ import React, { useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
+const categories = ["gaming", "utility", "exchange", "other"];
+
 type PluginManagerHomeProps = {
 	onCurrentViewChange: (view: string) => void;
 	onDelete: any;
@@ -79,8 +81,6 @@ const PluginManagerHome = ({
 			/>
 		);
 	};
-
-	const categories = ["gaming", "utility", "exchange", "other"];
 
 	return (
 		<>
@@ -249,67 +249,16 @@ export const PluginManager = () => {
 		trigger();
 	};
 
-	const renderGrid = () => {
-		if (currentView === "my-plugins") {
-			return (
-				<PluginGrid
-					plugins={installedPlugins}
-					onSelect={handleSelectPlugin}
-					onDelete={handleDeletePlugin}
-					onEnable={handleEnablePlugin}
-					onDisable={handleDisablePlugin}
-					onInstall={openInstallModalPlugin}
-					onLaunch={handleLaunchPlugin}
-					onUpdate={handleUpdate}
-					isLoading={isFetchingPackages}
-				/>
-			);
+	const viewPlugins = useMemo(() => {
+		switch (currentView) {
+			case "my-plugins":
+				return installedPlugins;
+			case "all":
+				return plugins;
+			default:
+				return filteredPackages;
 		}
-
-		return (
-			<PluginGrid
-				plugins={filteredPackages}
-				onSelect={handleSelectPlugin}
-				onDelete={handleDeletePlugin}
-				onEnable={handleEnablePlugin}
-				onDisable={handleDisablePlugin}
-				onInstall={openInstallModalPlugin}
-				onLaunch={handleLaunchPlugin}
-				isLoading={isFetchingPackages}
-			/>
-		);
-	};
-
-	const renderList = () => {
-		if (currentView === "my-plugins") {
-			return (
-				<PluginList
-					plugins={installedPlugins}
-					onClick={handleSelectPlugin}
-					onInstall={openInstallModalPlugin}
-					onDelete={handleDeletePlugin}
-					onEnable={handleEnablePlugin}
-					onDisable={handleDisablePlugin}
-					onLaunch={handleLaunchPlugin}
-					onUpdate={handleUpdate}
-					updatingStats={updatingStats}
-					showCategory={true}
-				/>
-			);
-		}
-
-		return (
-			<PluginList
-				plugins={filteredPackages}
-				onClick={handleSelectPlugin}
-				onInstall={openInstallModalPlugin}
-				onDelete={handleDeletePlugin}
-				onEnable={handleEnablePlugin}
-				onDisable={handleDisablePlugin}
-				onLaunch={handleLaunchPlugin}
-			/>
-		);
-	};
+	}, [currentView, installedPlugins, plugins, filteredPackages]);
 
 	const handleUpdateAll = async () => {
 		setIsUpdatingAll(true);
@@ -401,7 +350,34 @@ export const PluginManager = () => {
 							)}
 
 							<div data-testid={`PluginManager__container--${currentView}`}>
-								{viewType === "grid" ? renderGrid() : renderList()}
+								{viewType === "grid" && (
+									<PluginGrid
+										plugins={viewPlugins}
+										onSelect={handleSelectPlugin}
+										onDelete={handleDeletePlugin}
+										onEnable={handleEnablePlugin}
+										onDisable={handleDisablePlugin}
+										onInstall={openInstallModalPlugin}
+										onLaunch={handleLaunchPlugin}
+										onUpdate={handleUpdate}
+										isLoading={isFetchingPackages}
+									/>
+								)}
+
+								{viewType === "list" && (
+									<PluginList
+										plugins={viewPlugins}
+										onClick={handleSelectPlugin}
+										onInstall={openInstallModalPlugin}
+										onDelete={handleDeletePlugin}
+										onEnable={handleEnablePlugin}
+										onDisable={handleDisablePlugin}
+										onLaunch={handleLaunchPlugin}
+										onUpdate={handleUpdate}
+										updatingStats={updatingStats}
+										showCategory={currentView === "my-plugins" || currentView === "all"}
+									/>
+								)}
 							</div>
 						</>
 					)}
